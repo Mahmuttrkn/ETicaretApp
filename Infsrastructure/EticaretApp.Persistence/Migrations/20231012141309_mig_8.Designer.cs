@@ -3,6 +3,7 @@ using System;
 using EticaretApp.Persistence.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EticaretApp.Persistence.Migrations
 {
     [DbContext(typeof(EticaretAppDbContext))]
-    partial class EticaretAppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231012141309_mig_8")]
+    partial class mig_8
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -24,7 +27,7 @@ namespace EticaretApp.Persistence.Migrations
 
             modelBuilder.Entity("EticaretApp.Domain.Entities.Customer", b =>
                 {
-                    b.Property<Guid?>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -45,7 +48,7 @@ namespace EticaretApp.Persistence.Migrations
 
             modelBuilder.Entity("EticaretApp.Domain.Entities.File", b =>
                 {
-                    b.Property<Guid?>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -79,7 +82,7 @@ namespace EticaretApp.Persistence.Migrations
 
             modelBuilder.Entity("EticaretApp.Domain.Entities.Order", b =>
                 {
-                    b.Property<Guid?>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -109,7 +112,7 @@ namespace EticaretApp.Persistence.Migrations
 
             modelBuilder.Entity("EticaretApp.Domain.Entities.Product", b =>
                 {
-                    b.Property<Guid?>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -151,15 +154,15 @@ namespace EticaretApp.Persistence.Migrations
 
             modelBuilder.Entity("ProductProductImageFile", b =>
                 {
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("ProductImageFilesId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("ProductsId")
-                        .HasColumnType("uuid");
+                    b.HasKey("ProductId", "ProductImageFilesId");
 
-                    b.HasKey("ProductImageFilesId", "ProductsId");
-
-                    b.HasIndex("ProductsId");
+                    b.HasIndex("ProductImageFilesId");
 
                     b.ToTable("ProductProductImageFile");
                 });
@@ -209,15 +212,15 @@ namespace EticaretApp.Persistence.Migrations
 
             modelBuilder.Entity("ProductProductImageFile", b =>
                 {
-                    b.HasOne("EticaretApp.Domain.Entities.ProductImageFile", null)
+                    b.HasOne("EticaretApp.Domain.Entities.Product", null)
                         .WithMany()
-                        .HasForeignKey("ProductImageFilesId")
+                        .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("EticaretApp.Domain.Entities.Product", null)
+                    b.HasOne("EticaretApp.Domain.Entities.ProductImageFile", null)
                         .WithMany()
-                        .HasForeignKey("ProductsId")
+                        .HasForeignKey("ProductImageFilesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

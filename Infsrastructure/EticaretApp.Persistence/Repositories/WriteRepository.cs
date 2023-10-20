@@ -60,6 +60,12 @@ namespace EticaretApp.Persistence.Repositories
         public async Task<int> SaveAsync()
         => await _context.SaveChangesAsync();
 
-        
+        public async Task<T> GetByIdAsync(string id, bool tracking = true)
+        {
+            var query = Table.AsQueryable();
+            if (!tracking)
+                query = Table.AsNoTracking();
+            return await query.FirstOrDefaultAsync(p => p.Id == Guid.Parse(id));
+        }
     }
 }

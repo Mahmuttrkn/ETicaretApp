@@ -5,13 +5,15 @@ using EticaretApp.Infsrastructure.Services2.Storage.Local;
 using EticaretApp.Persistence;
 using EticaretApp.Infsrastructure;
 using FluentValidation.AspNetCore;
+using EticaretApp.Infsrastructure.Services2.Storage.Azure;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddPersistenceServices();
 builder.Services.AddInfrastructureServices();
 
-builder.Services.AddStorage<LocalStorage>();
+//builder.Services.AddStorage<LocalStorage>();
+builder.Services.AddStorage<AzureStorage>();
 
 //builder.Services.AddStorage(StorageType.Azure);
 

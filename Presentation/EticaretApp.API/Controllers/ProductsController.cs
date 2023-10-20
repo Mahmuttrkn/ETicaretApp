@@ -6,6 +6,7 @@ using EticaretApp.Application.ViewModuls.Products;
 using EticaretApp.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Net;
 
 namespace EticaretApp.API.Controllers
@@ -24,11 +25,12 @@ namespace EticaretApp.API.Controllers
         private readonly IInvoiceFileWriterRepository _invoiceFileWriterRepository;
         private readonly IInvoiceFileReadRepository _invoiceFileReadRepository;
         private readonly IStorageService _storageService;
+        readonly IConfiguration _configuration;
 
 
 
 
-        public ProductsController(IProductWriterRepository productWriterRepository, IProductReadRepository productReadRepository, IWebHostEnvironment webHostEnvironment, IFileWriterRepository writerRepository, IProductImageWriterRepository productImageWriterRepository, IInvoiceFileWriterRepository invoiceFileWriterRepository, IFileReadRepository fileReadRepository, IProductImageReadRepository productImageReadRepository, IInvoiceFileReadRepository invoiceFileReadRepository, IStorageService storageService)
+        public ProductsController(IProductWriterRepository productWriterRepository, IProductReadRepository productReadRepository, IWebHostEnvironment webHostEnvironment, IFileWriterRepository writerRepository, IProductImageWriterRepository productImageWriterRepository, IInvoiceFileWriterRepository invoiceFileWriterRepository, IFileReadRepository fileReadRepository, IProductImageReadRepository productImageReadRepository, IInvoiceFileReadRepository invoiceFileReadRepository, IStorageService storageService, IConfiguration configuration)
         {
             _productWriterRepository = productWriterRepository;
             _productReadRepository = productReadRepository;
@@ -40,6 +42,7 @@ namespace EticaretApp.API.Controllers
             _productImageReadRepository = productImageReadRepository;
             _invoiceFileReadRepository = invoiceFileReadRepository;
             _storageService = storageService;
+            _configuration = configuration;
         }
 
         [HttpGet]
@@ -68,15 +71,15 @@ namespace EticaretApp.API.Controllers
 
         public async Task<IActionResult> GetID(string id)
         {
-           
-            return Ok(await _productReadRepository.GetByIdAsync(id,false));
+
+            return Ok(await _productReadRepository.GetByIdAsync(id, false));
         }
 
 
         [HttpPost]
         public async Task<IActionResult> Post(Product_Create_ViewModel model)
         {
-           
+
             await _productWriterRepository.AddAsync(new()
             {
                 Name = model.Name,
@@ -104,19 +107,41 @@ namespace EticaretApp.API.Controllers
             return Ok();
         }
         [HttpPost("[action]")]
-        public async Task<IActionResult> Upload()
+        public async Task<IActionResult> Upload(string id)
         {
-          var datas = await _storageService.UpluoadAsync("resource/files", Request.Form.Files);
-            await _productImageWriterRepository.AddRangeAsync(datas.Select(d => new ProductImageFile()
-            {
-                FileName = d.fileName,
-                Path = d.pathOrContainerName,
-                CreateDate = DateTime.Now,
-                Storage = _storageService.StorageName
+            List<(string fileName, string pathOrContainerName)> result = await _storageService.UpluoadAsync("photo-images", Request.Form.Files);
 
+            Product product = await _productReadRepository.GetByIdAsync(id);
+
+            
+
+            await _productImageWriterRepository.AddRangeAsync(result.Select(r => new ProductImageFile
+            {
+                FileName = r.fileName,
+                Path = r.pathOrContainerName,
+                Storage = _storageService.StorageName,
+               // CreateDate = DateTime.Now,
+                Products = new List<Product>() { product }
             }).ToList());
+
             await _productImageWriterRepository.SaveAsync();
+
             return Ok();
         }
+        [HttpGet("[action]/{id}")]
+        public async Task<IActionResult> GetImages(string id)
+        {
+            Product? product = await _productReadRepository.Table.Include(p => p.ProductImageFiles).FirstOrDefaultAsync(p => p.Id == Guid.Parse(id));
+
+
+            return Ok(product.ProductImageFiles.Select(p => new
+            {
+                Path= $"{_configuration["BaseStorageUrl"]}/{p.Path}",
+                p.FileName
+            }));
+
+
+        }
+
     }
 }

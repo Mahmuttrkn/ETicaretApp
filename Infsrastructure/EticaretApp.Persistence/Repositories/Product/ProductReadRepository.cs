@@ -14,5 +14,7 @@ namespace EticaretApp.Persistence.Repositories
         public ProductReadRepository(EticaretAppDbContext context) : base(context)
         {
         }
+
+        
     }
 }

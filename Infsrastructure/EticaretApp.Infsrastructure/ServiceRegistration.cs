@@ -1,6 +1,7 @@
 ﻿
 using EticaretApp.Application.Abstractions.Storage;
 using EticaretApp.Infsrastructure;
+using EticaretApp.Infsrastructure.Services2.Storage;
 using EticaretApp.Infsrastructure.Services2.Storage.Local;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -18,7 +19,7 @@ namespace EticaretApp.Infsrastructure
             serviceCollection.AddScoped<IStorageService, StorageService>();
             
         }
-        public static void AddStorage<T>(this IServiceCollection serviceCollection) where T : class, IStorage
+        public static void AddStorage<T>(this IServiceCollection serviceCollection) where T : Storage, IStorage
         {
             serviceCollection.AddScoped<IStorage, T>();
         }

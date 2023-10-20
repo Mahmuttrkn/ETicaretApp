@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace EticaretApp.Infsrastructure.Services2.Storage.Local
 {
-    public class LocalStorage : ILocalStorage
+    public class LocalStorage :Storage, ILocalStorage
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
 
@@ -64,10 +64,10 @@ namespace EticaretApp.Infsrastructure.Services2.Storage.Local
           
             foreach (IFormFile file in files)
             {
-                
+                string fileNewName = await FileRenameAsync(uploadPath, file.Name, HasFile);
 
-                 await CopyFileAsync($"{uploadPath}\\{file.Name}", file);
-                datas.Add((file.Name, $"{path}\\{file.Name}"));
+                await CopyFileAsync($"{uploadPath}\\{fileNewName}", file);
+                datas.Add((fileNewName, $"{path}\\{fileNewName}"));
                 
             }
            

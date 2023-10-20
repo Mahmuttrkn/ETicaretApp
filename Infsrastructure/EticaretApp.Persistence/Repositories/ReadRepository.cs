@@ -37,7 +37,10 @@ namespace EticaretApp.Persistence.Repositories
             var query = Table.AsQueryable();
             if (!tracking)
                 query=Table.AsNoTracking();
-            return await query.FirstOrDefaultAsync(p => p.Id == Guid.Parse(id));
+           
+             return await query.FirstOrDefaultAsync(p => p.Id == Guid.Parse(id));
+            // tableiçinden çekerek bakalı
+            
         }
 
         public async Task<T> GetSingleAsync(Expression<Func<T, bool>> method, bool tracking = true)
