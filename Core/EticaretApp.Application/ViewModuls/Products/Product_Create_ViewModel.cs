@@ -8,6 +8,7 @@ namespace EticaretApp.Application.ViewModuls.Products
 {
     public class Product_Create_ViewModel
     {
+       // public string? FileId { get; set; }
         public string Name { get; set; }
         public int Stock { get; set; }
         public float Price { get; set; }

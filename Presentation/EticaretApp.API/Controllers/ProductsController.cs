@@ -82,6 +82,7 @@ namespace EticaretApp.API.Controllers
 
             await _productWriterRepository.AddAsync(new()
             {
+                
                 Name = model.Name,
                 Price = model.Price,
                 Stock = model.Stock
@@ -137,10 +138,22 @@ namespace EticaretApp.API.Controllers
             return Ok(product.ProductImageFiles.Select(p => new
             {
                 Path= $"{_configuration["BaseStorageUrl"]}/{p.Path}",
-                p.FileName
+                p.FileName,
+                p.Id
             }));
 
 
+        }
+        [HttpDelete("[action]/{id}")]
+
+        public async Task<IActionResult> DeleteProductImage(string id,string imageId)
+        {
+            Product? product = await _productReadRepository.Table.Include(p => p.ProductImageFiles).FirstOrDefaultAsync(p => p.Id == Guid.Parse(id));
+
+           ProductImageFile productImageFile =  product.ProductImageFiles.FirstOrDefault(p => p.Id == Guid.Parse(imageId));
+            product.ProductImageFiles.Remove(productImageFile);
+            _productImageWriterRepository.SaveAsync();
+            return Ok();
         }
 
     }

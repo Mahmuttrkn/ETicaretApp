@@ -37,9 +37,14 @@ namespace EticaretApp.Persistence.Repositories
             var query = Table.AsQueryable();
             if (!tracking)
                 query=Table.AsNoTracking();
+
            
-             return await query.FirstOrDefaultAsync(p => p.Id == Guid.Parse(id));
-            // tableiçinden çekerek bakalı
+
+            return await query.FirstOrDefaultAsync(p => p.Id == Guid.Parse(id));
+
+            
+
+            
             
         }
 

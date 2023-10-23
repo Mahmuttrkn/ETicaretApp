@@ -19,6 +19,8 @@ namespace EticaretApp.Persistence
                 configurationManager.AddJsonFile("appsettings.json");
 
                 return configurationManager.GetConnectionString("PostgreSQL");
+
+
             }
         }
     }
