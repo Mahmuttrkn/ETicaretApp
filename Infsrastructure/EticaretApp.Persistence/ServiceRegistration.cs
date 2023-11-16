@@ -1,7 +1,9 @@
 ﻿
 using EticaretApp.Application.Repositories;
+using EticaretApp.Domain.Entities.Identity;
 using EticaretApp.Persistence.Contexts;
 using EticaretApp.Persistence.Repositories;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -13,6 +15,7 @@ using System.Threading.Tasks;
 
 namespace EticaretApp.Persistence
 {
+
     public static class ServiceRegistration
     {
 
@@ -21,6 +24,14 @@ namespace EticaretApp.Persistence
 
 
             services.AddDbContext<EticaretAppDbContext>(options => options.UseNpgsql(Configuration.ConnectingString));
+            services.AddIdentity<AppUser, AppRole>(options =>
+            {
+                options.Password.RequiredLength = 3;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireDigit = false; 
+            }).AddEntityFrameworkStores<EticaretAppDbContext>();
             services.AddScoped<ICustomerReadRepository, CustomerReadRepository>();
             services.AddScoped<ICustomerWriterRepository, CustomerWriterRepository>();
             services.AddScoped<IProductReadRepository, ProductReadRepository>();
