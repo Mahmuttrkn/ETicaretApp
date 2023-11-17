@@ -11,6 +11,7 @@ using System.Reflection;
 using MediatR;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,7 +43,7 @@ builder.Services.AddControllers(options => options.Filters.Add<ValidationFilters
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddAuthentication("Admin").AddJwtBearer(options => options.TokenValidationParameters = new()
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer("Admin",options => options.TokenValidationParameters = new()
 {
     ValidateAudience = true,
     ValidateIssuer = true,
@@ -68,6 +69,7 @@ app.UseStaticFiles();
 app.UseCors();
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

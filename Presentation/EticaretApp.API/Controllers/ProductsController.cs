@@ -13,6 +13,7 @@ using EticaretApp.Application.RequestParameters;
 using EticaretApp.Application.ViewModuls.Products;
 using EticaretApp.Domain.Entities;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +23,7 @@ namespace EticaretApp.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes ="Admin")]
     public class ProductsController : ControllerBase
     {
         private readonly IProductWriterRepository _productWriterRepository;
