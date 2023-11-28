@@ -34,7 +34,7 @@ namespace EticaretApp.API.Controllers
         public async Task<IActionResult> GoogleLogin(GoogleLoginCommandRequest googleLoginCommandRequest)
         {
             GoogleLoginCommandResponse response = await _mediator.Send(googleLoginCommandRequest);
-            return Ok(Response);
+            return Ok(response);
         }
 
     }
