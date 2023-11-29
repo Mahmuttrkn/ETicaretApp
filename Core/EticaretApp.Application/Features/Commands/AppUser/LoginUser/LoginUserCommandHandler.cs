@@ -1,5 +1,7 @@
-﻿using EticaretApp.Application.Abstractions.Token;
+﻿using EticaretApp.Application.Abstractions.Services;
+using EticaretApp.Application.Abstractions.Token;
 using EticaretApp.Application.DTO_s;
+using EticaretApp.Application.DTO_s.User;
 using EticaretApp.Application.Exceptions;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -13,39 +15,20 @@ namespace EticaretApp.Application.Features.Commands.AppUser.LoginUser
 {
     public class LoginUserCommandHandler : IRequestHandler<LoginUserCommandRequest, LoginUserCommandResponse>
     {
-        private readonly UserManager<EticaretApp.Domain.Entities.Identity.AppUser> _userManager;
-        private readonly SignInManager<EticaretApp.Domain.Entities.Identity.AppUser> _singInManager;
-        private readonly ITokenHandler _tokenHandler;
+        private readonly IAuthService _authService;
 
-        public LoginUserCommandHandler(UserManager<EticaretApp.Domain.Entities.Identity.AppUser> userManager, SignInManager<Domain.Entities.Identity.AppUser> singInManager, ITokenHandler tokenHandler)
+        public LoginUserCommandHandler(IAuthService authService)
         {
-            _userManager = userManager;
-            _singInManager = singInManager;
-            _tokenHandler = tokenHandler;
+            _authService = authService;
         }
 
         public async Task<LoginUserCommandResponse> Handle(LoginUserCommandRequest request, CancellationToken cancellationToken)
         {
-            EticaretApp.Domain.Entities.Identity.AppUser  user = await _userManager.FindByNameAsync(request.UserNameOrEmail);
-            if (user == null)
+          var token = await _authService.LoginAsync(request.UserNameOrEmail, request.Password);
+            return new LoginUsersSuccessCommandlResponse()
             {
-                user = await _userManager.FindByEmailAsync(request.UserNameOrEmail);
-            }
-            if (user==null)
-            {
-                throw new NotFoundUserException();
-            }
-          SignInResult result = await _singInManager.CheckPasswordSignInAsync(user, request.Password, false);
-            if (result.Succeeded)
-            {
-              EticaretApp.Application.DTO_s.Token token =  _tokenHandler.CreateAccessToken();
-                return new LoginUsersSuccessCommandlResponse()
-                {
-                    Token = token
-                };
-            }
-            throw new AuthenticationErrorException();
-
+                Token = token,
+            };
         }
     }
 }

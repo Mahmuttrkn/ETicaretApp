@@ -1,8 +1,11 @@
 ﻿
+using EticaretApp.Application.Abstractions.Services;
+using EticaretApp.Application.Abstractions.Services.Authentication;
 using EticaretApp.Application.Repositories;
 using EticaretApp.Domain.Entities.Identity;
 using EticaretApp.Persistence.Contexts;
 using EticaretApp.Persistence.Repositories;
+using EticaretApp.Persistence.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -44,6 +47,12 @@ namespace EticaretApp.Persistence
             services.AddScoped<IProductImageWriterRepository, ProductWriterImageRepository>();
             services.AddScoped<IInvoiceFileReadRepository, InvoiceFileReadRepository>();
             services.AddScoped<IInvoiceFileWriterRepository, InvoiceFileWriterRepository>();
+
+
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IExternalAuthentication,UserLoginService>();
+            services.AddScoped<IInternalAuthentication,UserLoginService>();
+            services.AddScoped<IAuthService,UserLoginService>();
 
 
         }
