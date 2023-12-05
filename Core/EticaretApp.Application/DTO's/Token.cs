@@ -10,5 +10,7 @@ namespace EticaretApp.Application.DTO_s
     {
         public string AccessToken { get; set; }
         public DateTime Expiration { get; set; } //Token Süresi
+
+        public string RefreshToken { get; set; }
     }
 }

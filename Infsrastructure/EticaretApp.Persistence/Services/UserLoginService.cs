@@ -24,13 +24,15 @@ namespace EticaretApp.Persistence.Services
         private readonly UserManager<EticaretApp.Domain.Entities.Identity.AppUser> _userManager;
         private readonly ITokenHandler _tokenHandler;
         private readonly SignInManager<EticaretApp.Domain.Entities.Identity.AppUser> _signInManager;
+        private readonly IUserService _userService;
 
-        public UserLoginService(IConfiguration configuration, ITokenHandler tokenHandler, SignInManager<AppUser> signInManager, UserManager<AppUser> userManager)
+        public UserLoginService(IConfiguration configuration, ITokenHandler tokenHandler, SignInManager<AppUser> signInManager, UserManager<AppUser> userManager, IUserService userService)
         {
             _configuration = configuration;
             _tokenHandler = tokenHandler;
             _signInManager = signInManager;
             _userManager = userManager;
+            _userService = userService;
         }
 
         public async Task<Token> GoogleLoginAsync(string IdToken)
@@ -71,6 +73,7 @@ namespace EticaretApp.Persistence.Services
                 throw new Exception("Invalid external authentication");
             }
             Token token = _tokenHandler.CreateAccessToken();
+           await _userService.UpdateRefreshToken(token.RefreshToken, appUser, token.Expiration,10);
             return token;
 
         }
@@ -90,6 +93,7 @@ namespace EticaretApp.Persistence.Services
             if (result.Succeeded)
             {
                 Token token = _tokenHandler.CreateAccessToken();
+                await _userService.UpdateRefreshToken(token.RefreshToken, user, token.Expiration, 10);
                 return token;
             }
             throw new AuthenticationErrorException();

@@ -9,5 +9,6 @@ namespace EticaretApp.Application.Abstractions.Token
     public interface ITokenHandler
     {
         EticaretApp.Application.DTO_s.Token CreateAccessToken();
+       string CreateRefreshToken();
     }
 }
