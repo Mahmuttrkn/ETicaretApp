@@ -31,7 +31,7 @@ namespace EticaretApp.Infsrastructure.Services2.Token
             SigningCredentials signingCredentials = new(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
 
             //Oluşturulacak token ayarlarını veriyoruz.
-            token.Expiration = DateTime.UtcNow.AddSeconds(10);
+            token.Expiration = DateTime.UtcNow.AddMinutes(10);
             JwtSecurityToken jwtSecurityToken = new(
                 audience : _configuration["Token:Audience"],
                 issuer : _configuration["Token:Issuer"],

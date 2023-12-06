@@ -10,5 +10,6 @@ namespace EticaretApp.Application.Abstractions.Services.Authentication
     public interface IInternalAuthentication
     {
         Task<DTO_s.Token> LoginAsync(string UserNameOrEmail,string Password);
+        Task<DTO_s.Token> RefreshTokenLoginAsync(string refreshToken);
     }
 }

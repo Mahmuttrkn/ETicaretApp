@@ -7,14 +7,8 @@ using EticaretApp.Domain.Entities.Identity;
 using Google.Apis.Auth;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Ninject.Activation;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.NetworkInformation;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace EticaretApp.Persistence.Services
 {
@@ -97,6 +91,20 @@ namespace EticaretApp.Persistence.Services
                 return token;
             }
             throw new AuthenticationErrorException();
+        }
+
+        public async Task<Token> RefreshTokenLoginAsync(string refreshToken)
+        {
+           AppUser? user = await _userManager.Users.FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
+
+            if(user != null && user?.RefreshTokenEndDate > DateTime.UtcNow)
+            {
+               Token token = _tokenHandler.CreateAccessToken();
+               await _userService.UpdateRefreshToken(refreshToken,user,token.Expiration,10);
+                return token;
+            }
+            else { throw new NotFoundUserException(); }
+
         }
     }
 }
