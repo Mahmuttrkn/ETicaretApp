@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EticaretApp.Domain.Entities.Identity;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,7 @@ namespace EticaretApp.Application.Abstractions.Token
 {
     public interface ITokenHandler
     {
-        EticaretApp.Application.DTO_s.Token CreateAccessToken();
+        EticaretApp.Application.DTO_s.Token CreateAccessToken(AppUser appUser);
        string CreateRefreshToken();
     }
 }
