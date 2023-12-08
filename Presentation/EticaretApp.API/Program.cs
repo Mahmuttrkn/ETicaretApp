@@ -18,6 +18,7 @@ using Serilog.Sinks.PostgreSQL;
 using System.Security.Claims;
 using Serilog.Context;
 using EticaretApp.API.Configurations.ColumnWriters;
+using Microsoft.AspNetCore.HttpLogging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -54,9 +55,21 @@ Logger log = new LoggerConfiguration()
 
      })
     .Enrich.FromLogContext()
+    .MinimumLevel.Information()
     .CreateLogger();
 
 builder.Host.UseSerilog(log);
+
+builder.Services.AddHttpLogging(logging =>
+{
+    logging.LoggingFields = HttpLoggingFields.All;
+    logging.RequestHeaders.Add("sec-ch-ua");
+    //logging.ResponseHeaders.Add("MyResponseHeader");
+    logging.MediaTypeOptions.AddText("application/javascript");
+    logging.RequestBodyLogLimit = 4096;
+    logging.ResponseBodyLogLimit = 4096;
+    //logging.CombineLogs = true;
+});
 
 
 // Add services to the container.
@@ -97,6 +110,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseStaticFiles();
+app.UseSerilogRequestLogging();
+app.UseHttpLogging();
 app.UseCors();
 app.UseHttpsRedirection();
 

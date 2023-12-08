@@ -1,5 +1,7 @@
 ﻿using EticaretApp.Application.Repositories;
+using Google.Apis.Logging;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,11 +14,13 @@ namespace EticaretApp.Application.Features.Commands.Product.UpdateProduct
     {
         private readonly IProductReadRepository _productReadRepository;
         private readonly IProductWriterRepository _productWriterRepository;
+        private readonly ILogger<UpdateProductCommandHandler> _logger;
 
-        public UpdateProductCommandHandler(IProductReadRepository productReadRepository, IProductWriterRepository productWriterRepository)
+        public UpdateProductCommandHandler(IProductReadRepository productReadRepository, IProductWriterRepository productWriterRepository, ILogger<UpdateProductCommandHandler> logger)
         {
             _productReadRepository = productReadRepository;
             _productWriterRepository = productWriterRepository;
+            _logger = logger;
         }
 
         public async Task<UpdateProductCommandResponse> Handle(UpdateProductCommandRequest request, CancellationToken cancellationToken)
@@ -26,6 +30,7 @@ namespace EticaretApp.Application.Features.Commands.Product.UpdateProduct
             product.Name = request.Name;
             product.Price = request.Price;
             await _productWriterRepository.SaveAsync();
+            _logger.LogInformation("Güncelleme Yapıldı.");
             return new();
 
         }
