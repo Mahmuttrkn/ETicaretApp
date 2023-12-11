@@ -30,6 +30,7 @@
     <ProjectReference Include="..\..\Core\EticaretApp.Application\EticaretApp.Application.csproj" />
     <ProjectReference Include="..\..\Infsrastructure\EticaretApp.Infsrastructure\EticaretApp.Infsrastructure.csproj" />
     <ProjectReference Include="..\..\Infsrastructure\EticaretApp.Persistence\EticaretApp.Persistence.csproj" />
+    <ProjectReference Include="..\..\Infsrastructure\SignalR\SignalR.csproj" />
   </ItemGroup>
 
   <ItemGroup>

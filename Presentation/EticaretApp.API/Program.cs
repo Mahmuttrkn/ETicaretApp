@@ -20,12 +20,15 @@ using Serilog.Context;
 using EticaretApp.API.Configurations.ColumnWriters;
 using Microsoft.AspNetCore.HttpLogging;
 using EticaretApp.API.Extensions;
+using SignalR;
+using SignalR.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddPersistenceServices();
 builder.Services.AddInfrastructureServices();
 builder.Services.AddAplicationServices();
+builder.Services.AddSignalRServices();
 
 
 
@@ -130,5 +133,5 @@ app.Use(async (context,next) =>
 });
 
 app.MapControllers();
-
+app.MapHubs();
 app.Run();
