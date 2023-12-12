@@ -39,7 +39,11 @@ builder.Services.AddStorage<AzureStorage>();
 
 //builder.Services.AddStorage(StorageType.Azure);
 
-builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy.WithOrigins("http://localhost:4200", "https://localhost:4200", "http://localhost:57702", "http://localhost:56968/", "http://localhost:59981/").AllowAnyHeader().AllowAnyMethod()
+builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy.WithOrigins("http://localhost:4200",
+    "https://localhost:4200",
+    "http://localhost:57702",
+    "http://localhost:56968/",
+    "http://localhost:59981/").AllowAnyHeader().AllowAnyMethod().AllowCredentials()
 ));
 
 Logger log = new LoggerConfiguration()
