@@ -23,7 +23,7 @@ namespace EticaretApp.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(AuthenticationSchemes ="Admin")]
+    
     public class ProductsController : ControllerBase
     {
         private readonly IProductWriterRepository _productWriterRepository;
@@ -75,7 +75,7 @@ namespace EticaretApp.API.Controllers
             return Ok(response);
         }
 
-
+        [Authorize(AuthenticationSchemes = "Admin")]
         [HttpPost]
         public async Task<IActionResult> Post(CreateProductCommandRequest createProductCommandRequest)
         {
@@ -83,18 +83,21 @@ namespace EticaretApp.API.Controllers
            
             return StatusCode((int)HttpStatusCode.Created);
         }
+        [Authorize(AuthenticationSchemes = "Admin")]
         [HttpPut]
         public async Task<IActionResult> Put([FromBody] UpdateProductCommandRequest updateProductCommandRequest)
         {
             UpdateProductCommandResponse response = await _mediator.Send(updateProductCommandRequest);
             return Ok(response);
         }
+        [Authorize(AuthenticationSchemes = "Admin")]
         [HttpDelete("{Id}")]
         public async Task<IActionResult> Delete([FromRoute]DeleteProductCommandRequest deleteProductCommandRequest)
         {
             DeleteProductCommandResponse response = await _mediator.Send(deleteProductCommandRequest);
             return Ok(response);
         }
+        [Authorize(AuthenticationSchemes = "Admin")]
         [HttpPost("[action]")]
         public async Task<IActionResult> Upload([FromQuery,FromForm]UploadProductImageCommandRequest uploadProductImageCommandRequest)
         {
@@ -111,6 +114,7 @@ namespace EticaretApp.API.Controllers
 
 
         }
+        [Authorize(AuthenticationSchemes = "Admin")]
         [HttpDelete("[action]/{id}")]
 
         public async Task<IActionResult> DeleteProductImage([FromRoute]DeleteProductImageCommandRequest productImageCommandRequest, [FromQuery] string imageId)
