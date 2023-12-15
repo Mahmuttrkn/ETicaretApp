@@ -3,6 +3,7 @@ using EticaretApp.Application.Abstractions.Storage;
 using EticaretApp.Application.Features.Commands.Product.CreateProduct;
 using EticaretApp.Application.Features.Commands.Product.DeleteProduct;
 using EticaretApp.Application.Features.Commands.Product.UpdateProduct;
+using EticaretApp.Application.Features.Commands.UploadProduct.ChangeImage;
 using EticaretApp.Application.Features.Commands.UploadProduct.DeleteProductImage;
 using EticaretApp.Application.Features.Commands.UploadProduct.UploadProductImage;
 using EticaretApp.Application.Features.Queries.Product.GetAllProduct;
@@ -124,5 +125,12 @@ namespace EticaretApp.API.Controllers
             return Ok();
         }
 
+        [HttpPut("[action]/{imageId}/{productId}")]
+        [Authorize(AuthenticationSchemes = "Admin")]
+        public async Task<IActionResult> ChangeShowcase([FromQuery]ChangeImageCommandRequest changeImageCommandRequest)
+        {
+            ChangeImageCommandResponse response = await _mediator.Send(changeImageCommandRequest);
+            return Ok(response);
+        }
     }
 }

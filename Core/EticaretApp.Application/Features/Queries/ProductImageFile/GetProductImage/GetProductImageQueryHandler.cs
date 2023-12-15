@@ -29,10 +29,11 @@ namespace EticaretApp.Application.Features.Queries.ProductImageFile.GetProductIm
 
             return product?.ProductImageFiles.Select(p => new GetProductImageQueryResponse
             {
-                Path = $"{_configuration["BaseStorageUrl"]}/{p.Path}",
+                Path = $"{_configuration["BaseStorageUrl"]}{p.Path}",
                 FileName = p.FileName,
                 Id = p.Id
             }).ToList();
         }
     }
 }
+
