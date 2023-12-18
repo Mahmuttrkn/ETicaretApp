@@ -76,6 +76,7 @@ namespace EticaretApp.API.Controllers
             return Ok(response);
         }
 
+
         [Authorize(AuthenticationSchemes = "Admin")]
         [HttpPost]
         public async Task<IActionResult> Post(CreateProductCommandRequest createProductCommandRequest)
@@ -125,7 +126,7 @@ namespace EticaretApp.API.Controllers
             return Ok();
         }
 
-        [HttpPut("[action]/{imageId}/{productId}")]
+        [HttpGet("[action]")]
         [Authorize(AuthenticationSchemes = "Admin")]
         public async Task<IActionResult> ChangeShowcase([FromQuery]ChangeImageCommandRequest changeImageCommandRequest)
         {

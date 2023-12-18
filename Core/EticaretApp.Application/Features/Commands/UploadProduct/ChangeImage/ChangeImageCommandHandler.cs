@@ -29,10 +29,12 @@ namespace EticaretApp.Application.Features.Commands.UploadProduct.ChangeImage
                 });
 
             var data = await query.FirstOrDefaultAsync(p => p.p.Id == Guid.Parse(request.productId) && p.pif.Showcase);
+            if (data != null) 
 
             data.pif.Showcase = false;
 
-            var image = await query.FirstOrDefaultAsync(p => p.pif.Id == Guid.Parse(request.productId));
+            var image = await query.FirstOrDefaultAsync(p => p.pif.Id == Guid.Parse(request.imageId));
+            if (image != null)
 
             image.pif.Showcase = true;
 
