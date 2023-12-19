@@ -47,6 +47,10 @@ namespace EticaretApp.Persistence
             services.AddScoped<IProductImageWriterRepository, ProductWriterImageRepository>();
             services.AddScoped<IInvoiceFileReadRepository, InvoiceFileReadRepository>();
             services.AddScoped<IInvoiceFileWriterRepository, InvoiceFileWriterRepository>();
+            services.AddScoped<IBasketReadRepository, BasketReadRepository>();
+            services.AddScoped<IBasketWriterRepository, BasketWriterRepository>();
+            services.AddScoped<IBasketItemReadRepository, BasketItemReadRepository>();
+            services.AddScoped<IBasketItemWriterRepository, BasketItemWriterRepository>();
 
 
             services.AddScoped<IUserService, UserService>();
