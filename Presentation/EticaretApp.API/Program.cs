@@ -29,6 +29,7 @@ builder.Services.AddPersistenceServices();
 builder.Services.AddInfrastructureServices();
 builder.Services.AddAplicationServices();
 builder.Services.AddSignalRServices();
+builder.Services.AddHttpContextAccessor(); //Clienttan gelen request neticesinde oluþturulan HttContext nesnesine katmanlardaki class'lar üzerinden(business logic) eriþebilmemizi saðlar.
 
 
 

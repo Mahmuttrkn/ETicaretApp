@@ -8,6 +8,7 @@ namespace EticaretApp.Application.ViewModuls.Basket
 {
     public class VM_Create_Basket_Item
     {
-      
+        public string ProductId { get; set; }
+        public int Quantity { get; set; }
     }
 }
