@@ -57,6 +57,7 @@ namespace EticaretApp.Persistence
             services.AddScoped<IExternalAuthentication,UserLoginService>();
             services.AddScoped<IInternalAuthentication,UserLoginService>();
             services.AddScoped<IAuthService,UserLoginService>();
+            services.AddScoped<IBasketService, BasketService>();
 
 
         }

@@ -20,13 +20,19 @@ namespace EticaretApp.Persistence.Services
         private readonly UserManager<AppUser> _userManager;
         private readonly IOrderReadRepository _orderReadRepository;
         private readonly IBasketWriterRepository _basketWriterRepository;
+        private readonly IBasketItemWriterRepository _basketItemWriterRepository;
+        private readonly IBasketItemReadRepository _basketItemReadRepository;
+        private readonly IBasketReadRepository _basketReadRepository;
 
-        public BasketService(IHttpContextAccessor contextAccessor, UserManager<AppUser> userManager, IOrderReadRepository orderReadRepository, IBasketWriterRepository basketWriterRepository)
+        public BasketService(IHttpContextAccessor contextAccessor, UserManager<AppUser> userManager, IOrderReadRepository orderReadRepository, IBasketWriterRepository basketWriterRepository, IBasketItemWriterRepository basketItemWriterRepository, IBasketItemReadRepository basketItemReadRepository, IBasketReadRepository basketReadRepository)
         {
             _contextAccessor = contextAccessor;
             _userManager = userManager;
             _orderReadRepository = orderReadRepository;
             _basketWriterRepository = basketWriterRepository;
+            _basketItemWriterRepository = basketItemWriterRepository;
+            _basketItemReadRepository = basketItemReadRepository;
+            _basketReadRepository = basketReadRepository;
         }
 
         private async Task<Basket?> ContexUser()
@@ -55,7 +61,7 @@ namespace EticaretApp.Persistence.Services
                 else
                 {
                     targetBasket = new();
-                    user.Baskets.Add(targetBasket);
+                    user?.Baskets.Add(targetBasket);
                 }
                await _basketWriterRepository.SaveAsync();
                 return targetBasket;
@@ -63,24 +69,74 @@ namespace EticaretApp.Persistence.Services
             throw new Exception("Kullanıcı Sepetinde Hata Oluştu");
         }
 
-        public Task AddItemToBasketAsync(VM_Create_Basket_Item basketItem)
+        public async Task AddItemToBasketAsync(VM_Create_Basket_Item basketItem)
         {
-            throw new NotImplementedException();
+            Basket? basket = await ContexUser();
+            if (basket != null)
+            {
+               BasketItem _basketItem = await _basketItemReadRepository.GetSingleAsync(bi => bi.BasketId == basket.Id && bi.ProductId == Guid.Parse(basketItem.ProductId));
+
+                if (_basketItem != null)
+                {
+                    _basketItem.Quantity++;
+                }
+                else
+                {
+                    await _basketItemWriterRepository.AddAsync(new()
+                    {
+                        BasketId=basket.Id,
+                        ProductId=Guid.Parse(basketItem.ProductId),
+                        Quantity=basketItem.Quantity
+                    });
+
+                   await _basketItemWriterRepository.SaveAsync();
+                }
+            }
         }
 
-        public Task DeleteBasketItemAsync(string basketItemId)
+        public async Task DeleteBasketItemAsync(string basketItemId)
         {
-            throw new NotImplementedException();
+            BasketItem? basketItem = await _basketItemReadRepository.GetByIdAsync(basketItemId);
+            if (basketItem != null)
+            {
+                _basketItemWriterRepository.Remove(basketItem);
+               await _basketItemWriterRepository.SaveAsync();
+            }
+            else
+            {
+                throw new Exception("Sepet boş");
+            }
         }
 
-        public Task<List<BasketItem>> GetAllBasketItemsAsync()
+        public async Task<List<BasketItem>> GetAllBasketItemsAsync()
         {
-            throw new NotImplementedException();
+            Basket basket = await ContexUser();
+            if (basket != null)
+            {
+               Basket? result = await _basketReadRepository.Table.Include(b => b.BasketItems)
+                    .ThenInclude(bi => bi.Product)
+                    .FirstOrDefaultAsync(b => b.Id== basket.Id);
+
+               return result.BasketItems.ToList();
+
+            }
+            else
+            {
+                throw new Exception("Kulanıcın Sepeti Çağırılırken Sorun Oluştu.");
+            }
         }
 
-        public Task UpdateBasketItemAsync(VM_Update_Basket_Item updateBasketItem)
+        public async Task UpdateBasketItemAsync(VM_Update_Basket_Item updateBasketItem)
         {
-            throw new NotImplementedException();
+            BasketItem basketItem = await _basketItemReadRepository.GetByIdAsync(updateBasketItem.BasketItemId);
+            if (basketItem != null)
+            {
+               basketItem.Quantity = updateBasketItem.Quantity;
+               await _basketItemWriterRepository.SaveAsync();
+            }
+            else {
+                throw new Exception("Güncelleme hatası");
+                    };
         }
     }
 }
