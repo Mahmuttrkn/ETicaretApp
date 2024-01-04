@@ -138,5 +138,14 @@ namespace EticaretApp.Persistence.Services
                 throw new Exception("Güncelleme hatası");
                     };
         }
+
+        public Basket? GetUserActiveBasket
+        {
+            get
+            {
+                Basket? basket = ContexUser().Result; //O an ki kullanıcının sepetini elde edecez buradan.
+                return basket;
+            }
+        }
     }
 }
