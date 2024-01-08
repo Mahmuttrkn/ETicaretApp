@@ -4,6 +4,7 @@ using EticaretApp.Application.Repositories;
 using EticaretApp.Domain.Entities;
 using EticaretApp.Domain.Entities.Identity;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,24 +17,29 @@ namespace EticaretApp.Persistence.Services
     {
         private readonly IOrderReadRepository _orderReadRepository;
         private readonly IOrderWriterRepository _orderWriterRepository;
-        
+
 
         public OrderService(IOrderReadRepository orderReadRepository, IOrderWriterRepository orderWriterRepository)
         {
             _orderReadRepository = orderReadRepository;
             _orderWriterRepository = orderWriterRepository;
-            
+
         }
 
         public async Task CreateOrderAsync(CreateOrderDTO createOrderDTO)
         {
+            var orderCode = (new Random().NextDouble() * 10000).ToString();
+            orderCode = orderCode.Substring(orderCode.IndexOf(".") + 1, orderCode.Length - orderCode.IndexOf(".") - 1);
+
             await _orderWriterRepository.AddAsync(new()
             {
                 Address = createOrderDTO.Address,
                 Description = createOrderDTO.Description,
-                Id = Guid.Parse(createOrderDTO.BasketId)
+                Id = Guid.Parse(createOrderDTO.BasketId),
+                OrderCode = orderCode
+
             });
-           await _orderWriterRepository.SaveAsync();
+            await _orderWriterRepository.SaveAsync();
         }
 
         public Task DeleteOrder(string userId)
@@ -41,9 +47,30 @@ namespace EticaretApp.Persistence.Services
             throw new NotImplementedException();
         }
 
-        public Task<List<Order>> GetOrder()
+        public async Task<ListOrderDTO> GetAllOrderAsync(int page,int size)
         {
-            throw new NotImplementedException();
+            var query =  _orderReadRepository.Table.Include(o => o.Basket)
+                  .ThenInclude(b => b.User)
+                  .Include(o => o.Basket)
+                  .ThenInclude(b => b.BasketItems)
+                  .ThenInclude(bi => bi.Product);
+
+            var data = query.Skip(page * size).Take(size);
+               
+
+
+            return new()
+            {
+                TotalOrderCount = await query.CountAsync(),
+                Orders = await data.Select(o => new
+                {
+                    CreateDate = o.CreateDate,
+                    Description = o.Description,
+                    OrderCode = o.OrderCode,
+                    TotalPrice = o.Basket.BasketItems.Sum(bi => bi.Product.Price * bi.Quantity),
+                    UserName = o.Basket.User.UserName
+                }).ToListAsync()
+            };
         }
 
         public Task UpdateOrder(UpdateOrderDTO updateOrderDTO)
@@ -52,3 +79,5 @@ namespace EticaretApp.Persistence.Services
         }
     }
 }
+
+

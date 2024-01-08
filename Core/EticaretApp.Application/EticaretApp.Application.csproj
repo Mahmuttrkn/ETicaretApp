@@ -22,8 +22,4 @@
     <ProjectReference Include="..\EticaretApp.Domain\EticaretApp.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Features\Queries\Order\" />
-  </ItemGroup>
-
 </Project>
