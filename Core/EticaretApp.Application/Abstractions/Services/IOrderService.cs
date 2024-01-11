@@ -12,6 +12,7 @@ namespace EticaretApp.Application.Abstractions.Services
     {
         Task CreateOrderAsync(CreateOrderDTO createOrderDTO);
         Task<ListOrderDTO> GetAllOrderAsync(int page,int size);
+        Task<SingleOrderDTO> GetOrderByIdAsync(string id);
         public Task UpdateOrder(UpdateOrderDTO updateOrderDTO);
         public Task DeleteOrder(string userId);
 

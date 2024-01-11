@@ -1,9 +1,11 @@
 ﻿using EticaretApp.Application.Abstractions.Services;
 using EticaretApp.Application.DTO_s.Order;
+using EticaretApp.Application.Features.Queries.Order.GetOrderById;
 using EticaretApp.Application.Repositories;
 using EticaretApp.Domain.Entities;
 using EticaretApp.Domain.Entities.Identity;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -64,6 +66,7 @@ namespace EticaretApp.Persistence.Services
                 TotalOrderCount = await query.CountAsync(),
                 Orders = await data.Select(o => new
                 {
+                    Id = o.Id,
                     CreateDate = o.CreateDate,
                     Description = o.Description,
                     OrderCode = o.OrderCode,
@@ -73,10 +76,37 @@ namespace EticaretApp.Persistence.Services
             };
         }
 
+        public async Task<SingleOrderDTO> GetOrderByIdAsync(string id)
+        {
+            var data = await _orderReadRepository.Table.Include(o => o.Basket)
+                .ThenInclude(b => b.BasketItems)
+                .ThenInclude(bi => bi.Product)
+                .FirstOrDefaultAsync(o => o.Id == Guid.Parse(id));
+
+            return new()
+            {
+                Id = data.Id.ToString(),
+                Adress = data.Address,
+                BasketItems = data.Basket.BasketItems.Select(bi => new
+                {
+                    bi.Product.Name,
+                    bi.Product.Price,
+                    bi.Quantity
+                }),
+                CreatedDate = data.CreateDate,
+                Description = data.Description,
+                OrderCode = data.OrderCode,
+
+            };
+            
+        }
+
         public Task UpdateOrder(UpdateOrderDTO updateOrderDTO)
         {
             throw new NotImplementedException();
         }
+
+
     }
 }
 
