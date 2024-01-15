@@ -6,6 +6,7 @@ using EticaretApp.Domain.Entities.Identity;
 using EticaretApp.Persistence.Contexts;
 using EticaretApp.Persistence.Repositories;
 using EticaretApp.Persistence.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,8 +34,11 @@ namespace EticaretApp.Persistence
                 options.Password.RequireNonAlphanumeric = false;
                 options.Password.RequireLowercase = false;
                 options.Password.RequireUppercase = false;
-                options.Password.RequireDigit = false; 
-            }).AddEntityFrameworkStores<EticaretAppDbContext>();
+                options.Password.RequireDigit = false;
+            }).AddEntityFrameworkStores<EticaretAppDbContext>()
+            .AddDefaultTokenProviders();
+
+
             services.AddScoped<ICustomerReadRepository, CustomerReadRepository>();
             services.AddScoped<ICustomerWriterRepository, CustomerWriterRepository>();
             services.AddScoped<IProductReadRepository, ProductReadRepository>();

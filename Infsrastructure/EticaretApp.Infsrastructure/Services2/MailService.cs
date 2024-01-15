@@ -19,12 +19,12 @@ namespace EticaretApp.Infsrastructure.Services2
             _configuration = configuration;
         }
 
-        public async Task SendMessageAsync(string to, string subject, string body, bool isBodyHtml = true)
+        public async Task SendMailAsync(string to, string subject, string body, bool isBodyHtml = true)
         {
-           await SendMessageAsync(new[] {to},subject,body,isBodyHtml);
+           await SendMailAsync(new[] {to},subject,body,isBodyHtml);
         }
 
-        public async Task SendMessageAsync(string[] tos, string subject, string body, bool isBodyHtml = true)
+        public async Task SendMailAsync(string[] tos, string subject, string body, bool isBodyHtml = true)
         {
             MailMessage mail = new MailMessage();
             mail.IsBodyHtml = isBodyHtml;
@@ -45,6 +45,24 @@ namespace EticaretApp.Infsrastructure.Services2
            await smtpClient.SendMailAsync(mail);
 
 
+        }
+
+        public async Task SendPasswordResetMailAsync(string to,string userId,string resetToken)
+        {
+
+            StringBuilder mail = new StringBuilder();
+            mail.Append("Merhaba<br>Eğer yeni şifre talebinde bulunduysanız aşağıdaki link üzerinden şifrenizi yenileyebilirsiniz.<br><strong>" +
+                "<a target=\"_blank\"href=\"");
+            mail.AppendLine(_configuration["AngularClientUrl"]);
+            mail.AppendLine("/update-password");
+            mail.AppendLine(userId); //Link sonrası araya userId Sokmamıza yarıyor.
+            mail.AppendLine("/");
+            mail.AppendLine(resetToken);
+            mail.AppendLine("\">Yeni şifre talebi için tıklayınız..</a></strong><br><br><span=\"font-size:12px;\">Not: Eğer Bu Talep Tarafınızca" +
+                "Gerçekleştirilmediyse Dikkate Almayınız.<span/><br>Saygılarımızla..<br><br><br>MT-BILISIM"); //Burada da linki kapattık.
+
+            await SendMailAsync(to, "Şifre Yenileme Talebi", mail.ToString());
+            
         }
     }
 }

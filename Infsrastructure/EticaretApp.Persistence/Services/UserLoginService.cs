@@ -7,8 +7,10 @@ using EticaretApp.Domain.Entities.Identity;
 using Google.Apis.Auth;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using System.Text;
 
 namespace EticaretApp.Persistence.Services
 {
@@ -19,14 +21,16 @@ namespace EticaretApp.Persistence.Services
         private readonly ITokenHandler _tokenHandler;
         private readonly SignInManager<EticaretApp.Domain.Entities.Identity.AppUser> _signInManager;
         private readonly IUserService _userService;
+        private readonly IMailService _mailService;
 
-        public UserLoginService(IConfiguration configuration, ITokenHandler tokenHandler, SignInManager<AppUser> signInManager, UserManager<AppUser> userManager, IUserService userService)
+        public UserLoginService(IConfiguration configuration, ITokenHandler tokenHandler, SignInManager<AppUser> signInManager, UserManager<AppUser> userManager, IUserService userService, IMailService mailService)
         {
             _configuration = configuration;
             _tokenHandler = tokenHandler;
             _signInManager = signInManager;
             _userManager = userManager;
             _userService = userService;
+            _mailService = mailService;
         }
 
         public async Task<Token> GoogleLoginAsync(string IdToken)
@@ -91,6 +95,21 @@ namespace EticaretApp.Persistence.Services
                 return token;
             }
             throw new AuthenticationErrorException();
+        }
+
+        public async Task PasswordResetAsync(string email)
+        {
+          AppUser user = await _userManager.FindByEmailAsync(email);
+            if (user != null)
+            {
+              string resetToken = await _userManager.GeneratePasswordResetTokenAsync(user); //Reset tokenı burada oluşturuyoruz.
+               
+                byte[] tokenBytes = Encoding.UTF8.GetBytes(resetToken);
+               resetToken = WebEncoders.Base64UrlEncode(tokenBytes); //URL üzerinde taşınabilir bir veri formatına getirdik.(Şifreleme işlemi gerçekleştirdik.)
+
+               await _mailService.SendPasswordResetMailAsync(email,user.Id,resetToken);
+            }
+           
         }
 
         public async Task<Token> RefreshTokenLoginAsync(string refreshToken)

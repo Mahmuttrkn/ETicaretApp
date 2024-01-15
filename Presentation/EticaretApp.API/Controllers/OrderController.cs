@@ -39,5 +39,6 @@ namespace EticaretApp.API.Controllers
             GetOrderByIdQueryResponse response = await _mediator.Send(byIdQueryRequest);
             return Ok(response);
         }
+        
     }
 }

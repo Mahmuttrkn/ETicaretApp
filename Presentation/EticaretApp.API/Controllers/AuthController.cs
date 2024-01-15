@@ -1,6 +1,7 @@
 ﻿using EticaretApp.Application.Features.Commands.AppUser.CreateUser;
 using EticaretApp.Application.Features.Commands.AppUser.GoogleLogin;
 using EticaretApp.Application.Features.Commands.AppUser.LoginUser;
+using EticaretApp.Application.Features.Commands.AppUser.PasswordReset;
 using EticaretApp.Application.Features.Commands.RefreshTokenLogin;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -37,6 +38,12 @@ namespace EticaretApp.API.Controllers
         public async Task<IActionResult> GoogleLogin(GoogleLoginCommandRequest googleLoginCommandRequest)
         {
             GoogleLoginCommandResponse response = await _mediator.Send(googleLoginCommandRequest);
+            return Ok(response);
+        }
+        [HttpPost("password-reset")]
+        public async Task<IActionResult> PasswordReset([FromBody]PasswordResetCommandRequest passwordResetCommandRequest)
+        {
+           PasswordResetCommandResponse response = await _mediator.Send(passwordResetCommandRequest);
             return Ok(response);
         }
 
