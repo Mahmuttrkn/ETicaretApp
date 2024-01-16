@@ -3,6 +3,7 @@ using EticaretApp.Application.Abstractions.Token;
 using EticaretApp.Application.DTO_s;
 using EticaretApp.Application.DTO_s.User;
 using EticaretApp.Application.Exceptions;
+using EticaretApp.Application.Helpers;
 using EticaretApp.Domain.Entities.Identity;
 using Google.Apis.Auth;
 using MediatR;
@@ -71,7 +72,7 @@ namespace EticaretApp.Persistence.Services
                 throw new Exception("Invalid external authentication");
             }
             Token token = _tokenHandler.CreateAccessToken(appUser);
-           await _userService.UpdateRefreshToken(token.RefreshToken, appUser, token.Expiration,10);
+            await _userService.UpdateRefreshToken(token.RefreshToken, appUser, token.Expiration, 10);
             return token;
 
         }
@@ -79,7 +80,7 @@ namespace EticaretApp.Persistence.Services
         public async Task<Token> LoginAsync(string UserNameOrEmail, string Password)
         {
             EticaretApp.Domain.Entities.Identity.AppUser user = await _userManager.FindByNameAsync(UserNameOrEmail);
-            if(user == null)
+            if (user == null)
             {
                 user = await _userManager.FindByEmailAsync(UserNameOrEmail);
             }
@@ -87,7 +88,7 @@ namespace EticaretApp.Persistence.Services
             {
                 throw new NotFoundUserException();
             }
-            SignInResult result = await _signInManager.CheckPasswordSignInAsync(user, Password,false);
+            SignInResult result = await _signInManager.CheckPasswordSignInAsync(user, Password, false);
             if (result.Succeeded)
             {
                 Token token = _tokenHandler.CreateAccessToken(user);
@@ -99,31 +100,48 @@ namespace EticaretApp.Persistence.Services
 
         public async Task PasswordResetAsync(string email)
         {
-          AppUser user = await _userManager.FindByEmailAsync(email);
+            AppUser user = await _userManager.FindByEmailAsync(email);
             if (user != null)
             {
-              string resetToken = await _userManager.GeneratePasswordResetTokenAsync(user); //Reset tokenı burada oluşturuyoruz.
-               
-                byte[] tokenBytes = Encoding.UTF8.GetBytes(resetToken);
-               resetToken = WebEncoders.Base64UrlEncode(tokenBytes); //URL üzerinde taşınabilir bir veri formatına getirdik.(Şifreleme işlemi gerçekleştirdik.)
+                string resetToken = await _userManager.GeneratePasswordResetTokenAsync(user); //Reset tokenı burada oluşturuyoruz.
 
-               await _mailService.SendPasswordResetMailAsync(email,user.Id,resetToken);
+                //byte[] tokenBytes = Encoding.UTF8.GetBytes(resetToken);
+                //resetToken = WebEncoders.Base64UrlEncode(tokenBytes); //URL üzerinde taşınabilir bir veri formatına getirdik.(Şifreleme işlemi gerçekleştirdik.)
+
+                resetToken = resetToken.UrlEncode();
+
+                await _mailService.SendPasswordResetMailAsync(email, user.Id, resetToken);
             }
-           
+
         }
 
         public async Task<Token> RefreshTokenLoginAsync(string refreshToken)
         {
-           AppUser? user = await _userManager.Users.FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
+            AppUser? user = await _userManager.Users.FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
 
-            if(user != null && user?.RefreshTokenEndDate > DateTime.UtcNow)
+            if (user != null && user?.RefreshTokenEndDate > DateTime.UtcNow)
             {
-               Token token = _tokenHandler.CreateAccessToken(user);
-               await _userService.UpdateRefreshToken(refreshToken,user,token.Expiration,10);
+                Token token = _tokenHandler.CreateAccessToken(user);
+                await _userService.UpdateRefreshToken(refreshToken, user, token.Expiration, 10);
                 return token;
             }
             else { throw new NotFoundUserException(); }
 
+        }
+
+        public async Task<bool> VerifyResetTokenAsync(string resetToken, string userId)
+        {
+            AppUser user = await _userManager.FindByIdAsync(userId);
+            if (user != null)
+            {
+                //byte[] tokenBytes = WebEncoders.Base64UrlDecode(resetToken);
+                //resetToken = Encoding.UTF8.GetString(tokenBytes);
+
+                resetToken = resetToken.UrlDecode();
+
+              return await _userManager.VerifyUserTokenAsync(user, _userManager.Options.Tokens.PasswordResetTokenProvider, "ResetPassword", resetToken);
+            }
+            return false;
         }
     }
 }

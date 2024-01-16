@@ -11,6 +11,7 @@ namespace EticaretApp.Application.Abstractions.Services
     public interface IUserService
     {
         Task<CreateUserResponseDTO> CreateAync(CreateUserDTO model);
-        Task UpdateRefreshToken(string refreshToken, AppUser appUser, DateTime accessTokenDate, int refreshTokenLifeTime);
+        Task UpdateRefreshTokenAsync(string refreshToken, AppUser appUser, DateTime accessTokenDate, int refreshTokenLifeTime);
+        Task UpdatePasswordAsync(string userId,string resetToken, string newPassword);
     }
 }
