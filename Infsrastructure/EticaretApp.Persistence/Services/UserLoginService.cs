@@ -72,7 +72,7 @@ namespace EticaretApp.Persistence.Services
                 throw new Exception("Invalid external authentication");
             }
             Token token = _tokenHandler.CreateAccessToken(appUser);
-            await _userService.UpdateRefreshToken(token.RefreshToken, appUser, token.Expiration, 10);
+            await _userService.UpdateRefreshTokenAsync(token.RefreshToken, appUser, token.Expiration, 10);
             return token;
 
         }
@@ -92,7 +92,7 @@ namespace EticaretApp.Persistence.Services
             if (result.Succeeded)
             {
                 Token token = _tokenHandler.CreateAccessToken(user);
-                await _userService.UpdateRefreshToken(token.RefreshToken, user, token.Expiration, 10);
+                await _userService.UpdateRefreshTokenAsync(token.RefreshToken, user, token.Expiration, 10);
                 return token;
             }
             throw new AuthenticationErrorException();
@@ -122,7 +122,7 @@ namespace EticaretApp.Persistence.Services
             if (user != null && user?.RefreshTokenEndDate > DateTime.UtcNow)
             {
                 Token token = _tokenHandler.CreateAccessToken(user);
-                await _userService.UpdateRefreshToken(refreshToken, user, token.Expiration, 10);
+                await _userService.UpdateRefreshTokenAsync(refreshToken, user, token.Expiration, 10);
                 return token;
             }
             else { throw new NotFoundUserException(); }

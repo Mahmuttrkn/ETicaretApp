@@ -15,6 +15,8 @@ namespace EticaretApp.Domain.Entities
         //public Guid BasketId { get; set; }
         public string OrderCode { get; set; }
 
+        public CompletedOrder CompletedOrder { get; set; }
+
         public Basket Basket { get; set; } // Basketle Order arasında 1-1 bir ilişki oluşturduk.
 
         //public ICollection<Product> Products { get; set; }

@@ -1,4 +1,5 @@
 ﻿using EticaretApp.Application.Features.Commands.Order.CreateOrder;
+using EticaretApp.Application.Features.Commands.Order.ShoppingCompleted;
 using EticaretApp.Application.Features.Queries.Order;
 using EticaretApp.Application.Features.Queries.Order.GetOrderById;
 using MediatR;
@@ -39,6 +40,11 @@ namespace EticaretApp.API.Controllers
             GetOrderByIdQueryResponse response = await _mediator.Send(byIdQueryRequest);
             return Ok(response);
         }
-        
+        [HttpGet("complete-order/{Id}")]
+        public async Task<IActionResult> CompleteOrder([FromRoute] ShoppingCompletedCommandRequest shoppingCompletedCommandRequest)
+        {
+            ShoppingCompletedCommandResponse response = await _mediator.Send(shoppingCompletedCommandRequest);
+            return Ok(response);
+        }
     }
 }

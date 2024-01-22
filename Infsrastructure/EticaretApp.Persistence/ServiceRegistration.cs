@@ -2,9 +2,11 @@
 using EticaretApp.Application.Abstractions.Services;
 using EticaretApp.Application.Abstractions.Services.Authentication;
 using EticaretApp.Application.Repositories;
+using EticaretApp.Application.Repositories.CompletedOrder;
 using EticaretApp.Domain.Entities.Identity;
 using EticaretApp.Persistence.Contexts;
 using EticaretApp.Persistence.Repositories;
+using EticaretApp.Persistence.Repositories.CompletedOrder;
 using EticaretApp.Persistence.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -55,6 +57,8 @@ namespace EticaretApp.Persistence
             services.AddScoped<IBasketWriterRepository, BasketWriterRepository>();
             services.AddScoped<IBasketItemReadRepository, BasketItemReadRepository>();
             services.AddScoped<IBasketItemWriterRepository, BasketItemWriterRepository>();
+            services.AddScoped<ICompletedReadRepository, CompletedOrderReadRepository>();
+            services.AddScoped<ICompletedWriterRepository, CompletedOrderWriterRepository>();
 
 
             services.AddScoped<IUserService, UserService>();
