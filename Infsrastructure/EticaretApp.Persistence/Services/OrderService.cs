@@ -10,7 +10,9 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -69,51 +71,85 @@ namespace EticaretApp.Persistence.Services
 
         public async Task<ListOrderDTO> GetAllOrderAsync(int page,int size)
         {
-            var query =  _orderReadRepository.Table.Include(o => o.Basket)
+            var query = _orderReadRepository.Table.Include(o => o.Basket)
                   .ThenInclude(b => b.User)
                   .Include(o => o.Basket)
                   .ThenInclude(b => b.BasketItems)
                   .ThenInclude(bi => bi.Product);
 
+            
+
             var data = query.Skip(page * size).Take(size);
-               
+
+
+           var data2 = from order in data
+             join completedOrder in _completedReadRepository.Table
+            on order.Id equals completedOrder.OrderId into co
+             from _co in co.DefaultIfEmpty()
+             select new 
+             {
+                Id = order.Id,
+                CreateDate = order.CreateDate,
+               OrderCode =  order.OrderCode,
+               Basket =  order.Basket,
+               Completed = _co != null ? true : false
+             };
+
 
 
             return new()
             {
                 TotalOrderCount = await query.CountAsync(),
-                Orders = await data.Select(o => new
+                Orders = await data2.Select(o => new
                 {
                     Id = o.Id,
                     CreateDate = o.CreateDate,
-                    Description = o.Description,
                     OrderCode = o.OrderCode,
                     TotalPrice = o.Basket.BasketItems.Sum(bi => bi.Product.Price * bi.Quantity),
-                    UserName = o.Basket.User.UserName
+                    UserName = o.Basket.User.UserName,
+                    o.Completed
                 }).ToListAsync()
             };
         }
 
         public async Task<SingleOrderDTO> GetOrderByIdAsync(string id)
         {
-            var data = await _orderReadRepository.Table.Include(o => o.Basket)
+            var data =  _orderReadRepository.Table.Include(o => o.Basket)
                 .ThenInclude(b => b.BasketItems)
-                .ThenInclude(bi => bi.Product)
-                .FirstOrDefaultAsync(o => o.Id == Guid.Parse(id));
+                .ThenInclude(bi => bi.Product);
+
+
+            var data2 = await (from order in data
+                        join completedOrder in _completedReadRepository.Table
+                        on order.Id equals completedOrder.OrderId into co
+                        from _co in co.DefaultIfEmpty()
+                        select new
+                        {
+                            Id = order.Id,
+                            CreateDate = order.CreateDate,
+                            OrderCode = order.OrderCode,
+                            Basket = order.Basket,
+                            Completed = _co != null ? true : false,
+                            Address = order.Address,
+                            Description = order.Description
+                        }).FirstOrDefaultAsync(o => o.Id == Guid.Parse(id)); ;
+
+               
 
             return new()
             {
-                Id = data.Id.ToString(),
-                Adress = data.Address,
-                BasketItems = data.Basket.BasketItems.Select(bi => new
+                Id = data2.Id.ToString(),
+                BasketItems = data2.Basket.BasketItems.Select(bi => new
                 {
                     bi.Product.Name,
                     bi.Product.Price,
                     bi.Quantity
                 }),
-                CreatedDate = data.CreateDate,
-                Description = data.Description,
-                OrderCode = data.OrderCode,
+                CreatedDate = data2.CreateDate,
+                Address = data2.Address,
+                OrderCode = data2.OrderCode,
+                Description = data2.Description,
+                Completed = data2.Completed
 
             };
             
