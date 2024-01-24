@@ -19,6 +19,14 @@ namespace EticaretApp.Infsrastructure.Services2
             _configuration = configuration;
         }
 
+        public async Task SendCompletedOrderMailAsync(string to, string orderCode, DateTime orderDate,string userName,string userSurname)
+        {
+            string mail = $"Sayın {userName} {userSurname} Merhaba<br>" +
+                $"{orderDate} tarihinde vermiş olduğunuz {orderCode} kodlu sipariişini kargoya verilmiştir.";
+
+            await SendMailAsync(to, "Siparişiniz Tamamlandı", mail);
+        }
+
         public async Task SendMailAsync(string to, string subject, string body, bool isBodyHtml = true)
         {
            await SendMailAsync(new[] {to},subject,body,isBodyHtml);

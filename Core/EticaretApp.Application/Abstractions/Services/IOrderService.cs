@@ -15,7 +15,6 @@ namespace EticaretApp.Application.Abstractions.Services
         Task<SingleOrderDTO> GetOrderByIdAsync(string id);
         public Task UpdateOrder(UpdateOrderDTO updateOrderDTO);
         public Task DeleteOrder(string userId);
-      
-        public Task CompleteOrderAsync(string id);
+        public Task<(bool,CompletedOrderSendMailDTO)> CompleteOrderAsync(string id);
     }
 }

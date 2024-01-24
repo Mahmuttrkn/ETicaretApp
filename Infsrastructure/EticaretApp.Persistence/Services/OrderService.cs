@@ -34,9 +34,11 @@ namespace EticaretApp.Persistence.Services
             _completedWriterRepository = completedWriterRepository;
         }
 
-        public async Task CompleteOrderAsync(string id)
+        public async Task<(bool, CompletedOrderSendMailDTO)> CompleteOrderAsync(string id)
         {
-            Order order = await _orderReadRepository.GetByIdAsync(id);
+            Order? order = await _orderReadRepository.Table.Include(o => o.Basket)
+                .ThenInclude(b => b.User)
+                .FirstOrDefaultAsync(o => o.Id == Guid.Parse(id));
             if (order != null)
             {
                 await _completedWriterRepository.AddAsync(new()
@@ -44,8 +46,16 @@ namespace EticaretApp.Persistence.Services
                     OrderId = Guid.Parse(id)
 
                 });
-                await _completedWriterRepository.SaveAsync();
+                return (await _completedWriterRepository.SaveAsync() > 0, new()
+                {
+                    OrderCode = order.OrderCode,
+                    OrderDate = order.CreateDate,
+                    UserName = order.Basket.User.UserName,
+                    UserSurname = order.Basket.User.NameSurname,
+                    Email = order.Basket.User.Email
+                });
             }
+            return (false,null);
         }
 
         public async Task CreateOrderAsync(CreateOrderDTO createOrderDTO)
@@ -69,7 +79,7 @@ namespace EticaretApp.Persistence.Services
             throw new NotImplementedException();
         }
 
-        public async Task<ListOrderDTO> GetAllOrderAsync(int page,int size)
+        public async Task<ListOrderDTO> GetAllOrderAsync(int page, int size)
         {
             var query = _orderReadRepository.Table.Include(o => o.Basket)
                   .ThenInclude(b => b.User)
@@ -77,23 +87,23 @@ namespace EticaretApp.Persistence.Services
                   .ThenInclude(b => b.BasketItems)
                   .ThenInclude(bi => bi.Product);
 
-            
+
 
             var data = query.Skip(page * size).Take(size);
 
 
-           var data2 = from order in data
-             join completedOrder in _completedReadRepository.Table
-            on order.Id equals completedOrder.OrderId into co
-             from _co in co.DefaultIfEmpty()
-             select new 
-             {
-                Id = order.Id,
-                CreateDate = order.CreateDate,
-               OrderCode =  order.OrderCode,
-               Basket =  order.Basket,
-               Completed = _co != null ? true : false
-             };
+            var data2 = from order in data
+                        join completedOrder in _completedReadRepository.Table
+                       on order.Id equals completedOrder.OrderId into co
+                        from _co in co.DefaultIfEmpty()
+                        select new
+                        {
+                            Id = order.Id,
+                            CreateDate = order.CreateDate,
+                            OrderCode = order.OrderCode,
+                            Basket = order.Basket,
+                            Completed = _co != null ? true : false
+                        };
 
 
 
@@ -114,27 +124,27 @@ namespace EticaretApp.Persistence.Services
 
         public async Task<SingleOrderDTO> GetOrderByIdAsync(string id)
         {
-            var data =  _orderReadRepository.Table.Include(o => o.Basket)
+            var data = _orderReadRepository.Table.Include(o => o.Basket)
                 .ThenInclude(b => b.BasketItems)
                 .ThenInclude(bi => bi.Product);
 
 
             var data2 = await (from order in data
-                        join completedOrder in _completedReadRepository.Table
-                        on order.Id equals completedOrder.OrderId into co
-                        from _co in co.DefaultIfEmpty()
-                        select new
-                        {
-                            Id = order.Id,
-                            CreateDate = order.CreateDate,
-                            OrderCode = order.OrderCode,
-                            Basket = order.Basket,
-                            Completed = _co != null ? true : false,
-                            Address = order.Address,
-                            Description = order.Description
-                        }).FirstOrDefaultAsync(o => o.Id == Guid.Parse(id)); ;
+                               join completedOrder in _completedReadRepository.Table
+                               on order.Id equals completedOrder.OrderId into co
+                               from _co in co.DefaultIfEmpty()
+                               select new
+                               {
+                                   Id = order.Id,
+                                   CreateDate = order.CreateDate,
+                                   OrderCode = order.OrderCode,
+                                   Basket = order.Basket,
+                                   Completed = _co != null ? true : false,
+                                   Address = order.Address,
+                                   Description = order.Description
+                               }).FirstOrDefaultAsync(o => o.Id == Guid.Parse(id)); ;
 
-               
+
 
             return new()
             {
@@ -152,7 +162,7 @@ namespace EticaretApp.Persistence.Services
                 Completed = data2.Completed
 
             };
-            
+
         }
 
         public Task UpdateOrder(UpdateOrderDTO updateOrderDTO)
