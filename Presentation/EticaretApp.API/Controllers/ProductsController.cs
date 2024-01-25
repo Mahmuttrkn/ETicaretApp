@@ -1,5 +1,8 @@
 ﻿
 using EticaretApp.Application.Abstractions.Storage;
+using EticaretApp.Application.Consts;
+using EticaretApp.Application.CustomAttribute;
+using EticaretApp.Application.Enums;
 using EticaretApp.Application.Features.Commands.Product.CreateProduct;
 using EticaretApp.Application.Features.Commands.Product.DeleteProduct;
 using EticaretApp.Application.Features.Commands.Product.UpdateProduct;
@@ -41,9 +44,6 @@ namespace EticaretApp.API.Controllers
 
         private readonly IMediator _mediator;
 
-
-
-
         public ProductsController(IProductWriterRepository productWriterRepository, IProductReadRepository productReadRepository, IWebHostEnvironment webHostEnvironment, IFileWriterRepository writerRepository, IProductImageWriterRepository productImageWriterRepository, IInvoiceFileWriterRepository invoiceFileWriterRepository, IFileReadRepository fileReadRepository, IProductImageReadRepository productImageReadRepository, IInvoiceFileReadRepository invoiceFileReadRepository, IStorageService storageService, IConfiguration configuration, IMediator mediator)
         {
             _productWriterRepository = productWriterRepository;
@@ -79,6 +79,7 @@ namespace EticaretApp.API.Controllers
 
         [Authorize(AuthenticationSchemes = "Admin")]
         [HttpPost]
+        [AuthorizeDefinition(Menu = AuthorizeDefinitionConstants.Products, ActionType = ActionType.Writing, Definition = "Create Product")]
         public async Task<IActionResult> Post(CreateProductCommandRequest createProductCommandRequest)
         {
            CreateProductCommandResponse response = await _mediator.Send(createProductCommandRequest);
@@ -87,6 +88,7 @@ namespace EticaretApp.API.Controllers
         }
         [Authorize(AuthenticationSchemes = "Admin")]
         [HttpPut]
+        [AuthorizeDefinition(Menu = AuthorizeDefinitionConstants.Products, ActionType = ActionType.Updating, Definition = "Update Product")]
         public async Task<IActionResult> Put([FromBody] UpdateProductCommandRequest updateProductCommandRequest)
         {
             UpdateProductCommandResponse response = await _mediator.Send(updateProductCommandRequest);
@@ -94,6 +96,7 @@ namespace EticaretApp.API.Controllers
         }
         [Authorize(AuthenticationSchemes = "Admin")]
         [HttpDelete("{Id}")]
+        [AuthorizeDefinition(Menu = AuthorizeDefinitionConstants.Products, ActionType = ActionType.Deleting, Definition = "Delete Product")]
         public async Task<IActionResult> Delete([FromRoute]DeleteProductCommandRequest deleteProductCommandRequest)
         {
             DeleteProductCommandResponse response = await _mediator.Send(deleteProductCommandRequest);
@@ -101,6 +104,7 @@ namespace EticaretApp.API.Controllers
         }
         [Authorize(AuthenticationSchemes = "Admin")]
         [HttpPost("[action]")]
+        [AuthorizeDefinition(Menu = AuthorizeDefinitionConstants.Products, ActionType = ActionType.Writing, Definition = "Upload Product Image")]
         public async Task<IActionResult> Upload([FromQuery,FromForm]UploadProductImageCommandRequest uploadProductImageCommandRequest)
         {
             uploadProductImageCommandRequest.Files = Request.Form.Files;
@@ -109,6 +113,7 @@ namespace EticaretApp.API.Controllers
             return Ok();
         }
         [HttpGet("[action]/{id}")]
+        [AuthorizeDefinition(Menu = AuthorizeDefinitionConstants.Products, ActionType = ActionType.Reading, Definition = "Get Product Image")]
         public async Task<IActionResult> GetImages([FromRoute]GetProductImageQueryRequest productImageQueryRequest)
         {
             List<GetProductImageQueryResponse> response = await _mediator.Send(productImageQueryRequest);
@@ -118,7 +123,7 @@ namespace EticaretApp.API.Controllers
         }
         [Authorize(AuthenticationSchemes = "Admin")]
         [HttpDelete("[action]/{id}")]
-
+        [AuthorizeDefinition(Menu = AuthorizeDefinitionConstants.Products, ActionType = ActionType.Deleting, Definition = "Delete Product Image")]
         public async Task<IActionResult> DeleteProductImage([FromRoute]DeleteProductImageCommandRequest productImageCommandRequest, [FromQuery] string imageId)
         {
             productImageCommandRequest.ImageId = imageId;
@@ -128,6 +133,7 @@ namespace EticaretApp.API.Controllers
 
         [HttpGet("[action]")]
         [Authorize(AuthenticationSchemes = "Admin")]
+        [AuthorizeDefinition(Menu = AuthorizeDefinitionConstants.Products, ActionType = ActionType.Updating, Definition = "Change Product Image")]
         public async Task<IActionResult> ChangeShowcase([FromQuery]ChangeImageCommandRequest changeImageCommandRequest)
         {
             ChangeImageCommandResponse response = await _mediator.Send(changeImageCommandRequest);
