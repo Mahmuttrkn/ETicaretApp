@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace EticaretApp.Application.Abstractions.Services.Configurations
 {
-    public interface IService
+    public interface IApplicationService
     {
-        List<Menu> GetAuthorizeDefinitionEndPoint();
+        List<Menu> GetAuthorizeDefinitionEndPoint(Type assemblyType);
     }
 }
