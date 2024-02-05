@@ -46,7 +46,7 @@ namespace EticaretApp.Infsrastructure.Services2.Configuration
 
                                     Application.DTO_s.Configuration.Action _action = new()
                                     {
-                                        ActionTypes = authorizeDefinitionAttribute.ActionType,
+                                        ActionType = authorizeDefinitionAttribute.ActionType.ToString(),
                                         Definition = authorizeDefinitionAttribute.Definition
                                     };
 
@@ -55,6 +55,7 @@ namespace EticaretApp.Infsrastructure.Services2.Configuration
                                         _action.HttpType = httpAttribute.HttpMethods.First();
                                     else
                                         _action.HttpType = HttpMethods.Get;
+                                _action.Code = $"{_action.HttpType}.{_action.ActionType}.{_action.Definition.Replace(" ","")}";
 
                                     menu.Actions.Add(_action);
                                 }
