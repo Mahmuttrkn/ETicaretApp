@@ -9,10 +9,10 @@ namespace EticaretApp.Application.Abstractions.Services
 {
     public interface IRoleService
     {
-        Dictionary<string,string> GetAllRoles(int page,int size);
-        Task<(string id, string name)> GetRoleById(string id);
-        Task<bool> CreateRole(string name);
-        Task<bool> DeleteRole(string name);
-        Task<bool> UpdateRole(string name,string id);
+        (Object,int) GetAllRoles(int page, int size);
+        public Task<(string id, string name)> GetRoleById(string id);
+        public Task<bool> CreateRole(string name);
+        public Task<bool> DeleteRole(string id);
+        public Task<bool> UpdateRole(string name, string id);
     }
 }

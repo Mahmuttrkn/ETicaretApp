@@ -8,7 +8,8 @@ namespace EticaretApp.Application.Features.Queries.Role.GetRoles
 {
     public class GetRolesQueryResponse
     {
-        public Dictionary<string,string> Datas { get; set; }
-        public int TotalRoleCount { get; set; }
+        public Object Datas { get; set; }
+        public int TotalCount { get; set; }
+
     }
 }

@@ -20,34 +20,38 @@ namespace EticaretApp.Persistence.Services
 
         public async Task<bool> CreateRole(string name)
         {
-         IdentityResult? result =  await _roleManager.CreateAsync(new()
+            IdentityResult? result = await _roleManager.CreateAsync(new()
             {
-             Id = Guid.NewGuid().ToString(),
+                Id = Guid.NewGuid().ToString(),
                 Name = name
             });
             return result.Succeeded;
         }
 
-        public async Task<bool> DeleteRole(string name)
+        public async Task<bool> DeleteRole(string id)
         {
-         IdentityResult result =   await _roleManager.DeleteAsync(new() { Name = name});
+            AppRole appRole = await _roleManager.FindByIdAsync(id);
+            IdentityResult result = await _roleManager.DeleteAsync(appRole);
             return result.Succeeded;
         }
 
-        public Dictionary<string, string> GetAllRoles(int page,int size)
+        public (Object,int) GetAllRoles(int page, int size)
         {
-           return _roleManager.Roles.Skip(page * size).Take(size).ToDictionary(role => role.Id,role => role.Name);
+           var data =_roleManager.Roles.Skip(page * size).Take(size).Select(r => new { r.Id, r.Name });
+            return (data, _roleManager.Roles.Count());
         }
 
         public async Task<(string id, string name)> GetRoleById(string id)
         {
-          string role = await _roleManager.GetRoleIdAsync(new() { Id = id });
+            string role = await _roleManager.GetRoleIdAsync(new() { Id = id });
             return (id, role);
         }
 
-        public async Task<bool> UpdateRole(string id,string name)
+        public async Task<bool> UpdateRole(string id, string name)
         {
-           IdentityResult result = await _roleManager.UpdateAsync(new() { Id = id, Name = name });
+            AppRole appRole = await _roleManager.FindByIdAsync(id);
+            appRole.Name= name;
+            IdentityResult result = await _roleManager.UpdateAsync(new() { Id = id, Name = name });
             return result.Succeeded;
         }
     }

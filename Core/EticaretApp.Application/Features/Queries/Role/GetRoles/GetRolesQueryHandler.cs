@@ -19,12 +19,13 @@ namespace EticaretApp.Application.Features.Queries.Role.GetRoles
 
         public async Task<GetRolesQueryResponse> Handle(GetRolesQueryRequest request, CancellationToken cancellationToken)
         {
-            var result =  _roleService.GetAllRoles(request.Page,request.Size);
+            var (result,count) =  _roleService.GetAllRoles(request.Page,request.Size);
 
             return new()
             {
                 Datas = result,
-                TotalRoleCount = result.Count
+                TotalCount = count
+               
             };
         }
     }
