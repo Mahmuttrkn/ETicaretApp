@@ -59,6 +59,10 @@ namespace EticaretApp.Persistence
             services.AddScoped<IBasketItemWriterRepository, BasketItemWriterRepository>();
             services.AddScoped<ICompletedReadRepository, CompletedOrderReadRepository>();
             services.AddScoped<ICompletedWriterRepository, CompletedOrderWriterRepository>();
+            services.AddScoped<IEndpointReadRepository, EndpointReadRepository>();
+            services.AddScoped<IEndpointWriterRepository, EndpointWriterRepository>();
+            services.AddScoped<IMenuReadRepository, MenuReadRepository>();
+            services.AddScoped<IMenuWriterRepository, MenuWriterRepository>();
 
 
             services.AddScoped<IUserService, UserService>();
@@ -67,8 +71,7 @@ namespace EticaretApp.Persistence
             services.AddScoped<IAuthService,UserLoginService>();
             services.AddScoped<IBasketService, BasketService>();
             services.AddScoped<IRoleService, RoleService>();
-
-
+            services.AddScoped<IAuthorizationEndpointService, AuthorizationEndpointService>();
             services.AddScoped<IOrderService , OrderService>();
 
 
