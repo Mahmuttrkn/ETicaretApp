@@ -13,5 +13,7 @@ namespace EticaretApp.Application.Abstractions.Services
         Task<CreateUserResponseDTO> CreateAync(CreateUserDTO model);
         Task UpdateRefreshTokenAsync(string refreshToken, AppUser appUser, DateTime accessTokenDate, int refreshTokenLifeTime);
         Task UpdatePasswordAsync(string userId,string resetToken, string newPassword);
+        Task<List<GetAllUsersDTO>> GetAllUsersAsync(int page,int size);
+        public int TotalUserCount { get; }
     }
 }

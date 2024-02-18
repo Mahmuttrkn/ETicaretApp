@@ -19,7 +19,7 @@ namespace EticaretApp.Application.Features.Commands.AuthorizationEndPoints.Assig
 
         public async Task<AssigneRoleCommandResponse> Handle(AssigneRoleCommandRequest request, CancellationToken cancellationToken)
         {
-           await _authorizationEndpointService.AssignRoleEndpointAsync(request.rolesName, request.Menu, request.Code,request.Type);
+           await _authorizationEndpointService.AssignRoleEndpointAsync(request.Roles, request.Menu, request.Code,request.Type);
 
             return new();
         }

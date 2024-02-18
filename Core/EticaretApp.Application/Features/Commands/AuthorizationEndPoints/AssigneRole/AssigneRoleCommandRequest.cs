@@ -9,7 +9,7 @@ namespace EticaretApp.Application.Features.Commands.AuthorizationEndPoints.Assig
 {
     public class AssigneRoleCommandRequest : IRequest<AssigneRoleCommandResponse>
     {
-        public string[] rolesName { get; set; }
+        public string[] Roles { get; set; }
         public string Code { get; set; }
         public string Menu { get; set; }
         public Type? Type { get; set; }

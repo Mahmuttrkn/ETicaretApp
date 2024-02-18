@@ -33,23 +33,26 @@ namespace EticaretApp.Persistence.Services
             _roleManager = roleManager;
         }
 
-        public async Task AssignRoleEndpointAsync(string[] rolesName,string menu, string code, Type type)
+        public async Task AssignRoleEndpointAsync(string[] roles, string menu, string code, Type type)
         {
             Menu? _menu = await _menuReadRepository.GetSingleAsync(e => e.Name == menu);
+
             if (_menu == null)
             {
-               await _menuWriterRepository.AddAsync(new()
-               {
-                   Id = Guid.NewGuid(),
-                   Name = menu,
-               });
+                _menu = new Menu()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = menu,
+                };
+                await _menuWriterRepository.AddAsync(_menu);
+                await _menuWriterRepository.SaveAsync();
             }
-           await _menuWriterRepository.SaveAsync();
 
-            Endpoint? endpoint = await _endpointReadRepository.Table.Include(e => e.Menu).FirstOrDefaultAsync(m => m.Code == code && m.Menu.Name == menu);
+
+            Endpoint? endpoint = await _endpointReadRepository.Table.Include(e => e.Menu).Include(e => e.Roles).FirstOrDefaultAsync(m => m.Code == code && m.Menu.Name == menu);
             if (endpoint == null)
             {
-               var action = _applicationService.GetAuthorizeDefinitionEndPoint(type).FirstOrDefault(m => m.Name == menu)?.Actions.FirstOrDefault(a => a.Code == code);
+                var action = _applicationService.GetAuthorizeDefinitionEndPoint(type).FirstOrDefault(m => m.Name == menu)?.Actions.FirstOrDefault(a => a.Code == code);
 
 
                 endpoint = new()
@@ -58,20 +61,42 @@ namespace EticaretApp.Persistence.Services
                     Code = code,
                     Id = Guid.NewGuid(),
                     HttpType = action.HttpType,
-                    Definition = action.Definition
+                    Definition = action.Definition,
+                    Menu = _menu
                 };
 
                 await _endpointWriterRepository.AddAsync(endpoint);
                 await _endpointWriterRepository.SaveAsync();
             }
 
-           var appRoles =  await _roleManager.Roles.Where(r => rolesName.Contains(r.Name)).ToListAsync();
+            foreach (var role in endpoint.Roles)
+            {
+                endpoint.Roles.Remove(role);
+            }
 
-           foreach (var role in appRoles)
+
+            var appRoles = await _roleManager.Roles.Where(r => roles.Contains(r.Name)).ToListAsync();
+
+            foreach (var role in appRoles)
             {
                 endpoint.Roles.Add(role);
             }
             await _endpointWriterRepository.SaveAsync();
+        }
+
+        public async Task<List<string>> GetRolesToEndpointAsync(string code, string menu)
+        {
+          Endpoint? endpoint = await _endpointReadRepository.Table
+                .Include(e => e.Roles)
+                .Include(e =>e.Menu)
+                .FirstOrDefaultAsync(e => e.Code == code && e.Menu.Name == menu);
+            if(endpoint != null)
+            {
+                return endpoint.Roles.Select(r => r.Name).ToList();
+            }
+
+            return null;
+
         }
     }
 }

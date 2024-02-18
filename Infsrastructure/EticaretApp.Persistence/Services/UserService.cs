@@ -6,6 +6,7 @@ using EticaretApp.Application.Helpers;
 using EticaretApp.Domain.Entities.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 using Ninject.Activation;
 using System;
 using System.Collections.Generic;
@@ -23,6 +24,8 @@ namespace EticaretApp.Persistence.Services
         {
             _userManager = userManager;
         }
+
+        public int TotalUserCount =>  _userManager.Users.Count();
 
         public async Task<CreateUserResponseDTO> CreateAync(CreateUserDTO model)
         {
@@ -44,6 +47,23 @@ namespace EticaretApp.Persistence.Services
                     response.Message += $"{error.Code} - {error.Description}\n";
 
             return response;
+        }
+
+        public async Task<List<GetAllUsersDTO>> GetAllUsersAsync(int page,int size)
+        {
+           var users = await _userManager.Users
+                 .Skip(page * size)
+                 .Take(size)
+                 .ToListAsync();
+
+            return users.Select(user => new GetAllUsersDTO
+            {
+                Id = user.Id,
+                Email = user.Email,
+                NameSurname=user.NameSurname,
+                Username = user.UserName,
+                TwoFactorEnabled = user.TwoFactorEnabled
+            }).ToList();
         }
 
         public async Task UpdatePasswordAsync(string userId, string resetToken, string newPassword)
